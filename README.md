@@ -47,7 +47,7 @@ Please cite our paper if the model or the paper help:
 @inproceedings{tang2020transferring,
 	title = {Transferring Robustness for Graph Neural Network Against Poisoning Attacks},
 	author={Tang, Xianfeng and Li, Yandong and Sun, Yiwei and Yao, Huaxiu and Mitra, Prasenjit and Wang, Suhang},
-	booktitle={Web Search and Data Mining (WSDM)},
+	booktitle={ACM Internatioal Conference on Web Search and Data Mining (WSDM)},
 	year = {2020}
 }
 ```
