@@ -1,5 +1,5 @@
 """
-Code for robust GAT which transfer knowledge from multiple graphs
+Code for PA-GNN which transfer knowledge from multiple graphs
 In addition to the original attention mechanism, we force the attention score between missing edges are higher than those on newly-added edges
 """
 
@@ -8,10 +8,6 @@ import os,sys
 import tensorflow as tf
 import numpy as np
 import random
-from metattack import utils
-from utils import sample_reddit, load_graphs, compute_diff, RGCN, PowerUpGCN, GraphData, test_gat, test_gcn, test_rgcn, test_powerup, test_pps, test_joint, test_pretrain, test_2nd
-from GAT.utils.process import flat_adj_to_bias
-from metattack import meta_gradient_attack as mtk
 import scipy.sparse as sp
 from tensorflow.contrib import slim
 import argparse
@@ -88,7 +84,7 @@ class PAGNN:
         """
         # create or reuse network variable, not including batch_norm variable, therefore we need extra reuse mechnism
         # to reuse batch_norm variables.
-        self.weights = self.gat_weights()
+        self.weights = self.gnn_weights()
         # TODO: meta-test is sort of test stage.
         # training = True if mode is 'train' else False
 
@@ -229,7 +225,7 @@ class PAGNN:
 
 
 
-    def gat_weights(self):
+    def gnn_weights(self):
         # single head gat
         w_init = slim.xavier_initializer
         weights = {}
@@ -411,24 +407,13 @@ class PAGNN:
 
             # summary
             if iteration % 10 == 0:
-                # set_trace()
-                # summ_op
-                # tb.add_summary(result[1], iteration)
-                # query_losses[0]
                 prelosses.append(result[1])
-                # query_losses[-1]
                 postlosses.append(result[2])
-                # query_accs[0]
                 preaccs.append(result[3])
-                # query_accs[-1]
                 postaccs.append(result[4])
 
                 print(iteration, '\tloss:', np.mean(prelosses), '=>', np.mean(postlosses),
                     '\t\tacc:', np.mean(preaccs), '=>', np.mean(postaccs))
-                # if np.mean(postlosses) - np.mean(prelosses) > 100000:
-                #     # the gradient crashed, reload last check point
-                #     print('model crashed, restoring...')
-                #     saver.restore(sess, os.path.join(model_path, 'robust.gcn'))
                 prelosses, postlosses, preaccs, postaccs = [], [], [], []
 
             # evaluation
@@ -451,8 +436,6 @@ class PAGNN:
 
                 acc = np.mean(acc2s)
                 print('>>>>\tValidation accs: ', np.mean(acc1s), acc, 'best:', best_acc, '\t<<<<')
-                # if np.mean(acc1s) > acc:
-                #     val_go_worse_cnt+=1
 
                 if acc - best_acc > 0.005 and iteration != 0:
                     saver.save(sess, os.path.join(model_path, 'robust.gcn'))
@@ -472,7 +455,7 @@ class PAGNN:
         nb_task = self.nb_task
         self.init_graphs([graph,])
         self.nb_task = nb_task + 1
-        weights = self.gat_weights()
+        weights = self.gnn_weights()
         saver = tf.train.Saver(tf.global_variables(), max_to_keep=5)
 
         if os.path.exists(os.path.join(self.model_path, 'checkpoint')):
@@ -491,22 +474,14 @@ class PAGNN:
         # accs
         acc, val_acc, test_acc = map(lambda idx:tf.contrib.metrics.accuracy(tf.argmax(tf.nn.softmax(tf.gather(logits, idx), dim=1), axis=1), tf.argmax(tf.gather(Y, idx), axis=1)), [train_idx, val_idx, test_idx])
 
-        # optimizer = tf.train.AdamOptimizer(learning_rate=self.train_lr)
-        # train_op = optimizer.minimize(loss, list(weights.values()))
 
         gvs = self.optimizer.compute_gradients(loss, var_list=list(self.weights.values()))
         gvs = [(tf.clip_by_norm(grad, 10), var) for grad, var in gvs]
         train_op = self.optimizer.apply_gradients(gvs)
 
-        # sess.run(tf.global_variables_initializer())
         self.finetune_model_path = os.path.join(self.model_path, 'finetune')
         if not os.path.isdir(self.finetune_model_path):
             os.mkdir(self.finetune_model_path)
-        # if os.path.exists(self.model_path):
-        #     # load weights for theta
-        #     model_file = tf.train.latest_checkpoint('ckpt')
-        #     print("Restoring model weights from ", model_file)
-        #     saver.restore(sess, model_file)
 
         train_losses = []
         train_accs = []
