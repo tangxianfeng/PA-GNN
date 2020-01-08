@@ -4,6 +4,17 @@ Implementation of paper "[Transferring Robustness for Graph Neural Network Again
 by Xianfeng Tang, Yandong Li, Yiwei Sun, Huaxiu Yao, Prasenjit Mitra, Suhang Wang  
 Published at WSDM 2020, Houston, Texas, USA
 
+Please cite our paper if the model or the paper help:
+
+```
+@inproceedings{tang2020transferring,
+	title = {Transferring Robustness for Graph Neural Network Against Poisoning Attacks},
+	author={Tang, Xianfeng and Li, Yandong and Sun, Yiwei and Yao, Huaxiu and Mitra, Prasenjit and Wang, Suhang},
+	booktitle={ACM Internatioal Conference on Web Search and Data Mining (WSDM)},
+	year = {2020}
+}
+```
+
 ## Requirements
 * Python 3.7 or newer
 * `numpy`
@@ -40,14 +51,3 @@ The design of neural networks is inspired by [gcn](https://github.com/tkipf/gcn)
 #### Graph adversarial attacks
 We adopt [nettack](https://github.com/danielzuegner/nettack) and [metattack](https://github.com/danielzuegner/gnn-meta-attack).
 
-## Cite
-Please cite our paper if the model or the paper help:
-
-```
-@inproceedings{tang2020transferring,
-	title = {Transferring Robustness for Graph Neural Network Against Poisoning Attacks},
-	author={Tang, Xianfeng and Li, Yandong and Sun, Yiwei and Yao, Huaxiu and Mitra, Prasenjit and Wang, Suhang},
-	booktitle={ACM Internatioal Conference on Web Search and Data Mining (WSDM)},
-	year = {2020}
-}
-```
